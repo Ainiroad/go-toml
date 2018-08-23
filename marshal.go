@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"runtime"
 )
 
 const tagKeyMultiline = "multiline"
@@ -349,12 +350,22 @@ func (t *Tree) Marshal() ([]byte, error) {
 //   toml:"Field" Overrides the field's name to map to.
 //
 // See Marshal() documentation for types mapping table.
-func Unmarshal(data []byte, v interface{}) error {
-	t, err := LoadReader(bytes.NewReader(data))
+func Unmarshal(data []byte, v interface{}) (err error) {
+	var t *Tree
+	defer func() {
+		if r := recover(); r != nil {
+			if _, ok := r.(runtime.Error); ok {
+				panic(r)
+			}
+			err = fmt.Errorf("%v", r)
+		}
+	}()
+	t, err = LoadReader(bytes.NewReader(data))
 	if err != nil {
-		return err
+		return
 	}
-	return t.Unmarshal(v)
+	err = t.Unmarshal(v)
+	return
 }
 
 // Decoder reads and decodes TOML values from an input stream.

@@ -1,12 +1,10 @@
 package toml
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
-	"runtime"
 	"strings"
 )
 
@@ -329,14 +327,6 @@ func (t *Tree) createSubTree(keys []string, pos Position) error {
 
 // LoadBytes creates a Tree from a []byte.
 func LoadBytes(b []byte) (tree *Tree, err error) {
-	defer func() {
-		if r := recover(); r != nil {
-			if _, ok := r.(runtime.Error); ok {
-				panic(r)
-			}
-			err = errors.New(r.(string))
-		}
-	}()
 	tree = parseToml(lexToml(b))
 	return
 }
@@ -347,8 +337,7 @@ func LoadReader(reader io.Reader) (tree *Tree, err error) {
 	if err != nil {
 		return
 	}
-	tree, err = LoadBytes(inputBytes)
-	return
+	return LoadBytes(inputBytes)
 }
 
 // Load creates a Tree from a string.
