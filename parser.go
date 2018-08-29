@@ -381,7 +381,7 @@ func (p *tomlParser) parseArray() interface{} {
 		if arrayType == nil {
 			arrayType = reflect.TypeOf(val)
 		}
-		if reflect.TypeOf(val) != arrayType {
+		if reflect.TypeOf(val) != arrayType && !reflect.ValueOf(val).Type().ConvertibleTo(arrayType) {
 			p.raiseError(follow, "mixed types in array")
 		}
 		array = append(array, val)
